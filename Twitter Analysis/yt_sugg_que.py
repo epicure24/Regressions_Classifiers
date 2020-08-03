@@ -424,8 +424,5 @@ def main_function(data, platform):
 
 
 
-#data = pd.read_csv('Test.csv', engine="python")
-
-#s, q, p = main_function(data)
 
 	
