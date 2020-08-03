@@ -1,7 +1,6 @@
 import requests
 import base64
-from requests_oauthlib import OAuth1
-import Twitter_key 
+from requests_oauthlib import OAuth1 
 import json
 from ast import literal_eval
 import pandas as pd
@@ -14,15 +13,8 @@ from nltk.stem import WordNetLemmatizer
 from gensim.summarization import keywords
 import json
 
-#database
-import mysql.connector as ms
-import time
-from datetime import datetime
-
-mydb = ms.connect(host="localhost", user ="root",passwd="shwetakrishnamohan", database="user_login")
-mycursor = mydb.cursor(buffered=True)
-
-bearer_token = Twitter_key.bearer_token
+#TWITTER DEVELOPER ACCOUNT GIVES BEARER TOKEN FOR AUTHENTICATION PURPOSES
+bearer_token = xxxxxxxxxxxxxxxxxx
 search_headers = {
     'Authorization': 'Bearer {}'.format(bearer_token)    
 }
@@ -31,6 +23,7 @@ def bmp(s):
     return "".join((i if ord(i) < 10000 else '\ufffd' for i in s))
 
 def gen_data():
+	#NO. OF TWITTER PAGES YOU WANT TO EXTRACT DATA FROM (MAX PAGE IS 100)
 	max_pages=30
 	count = 0
 	data = pd.DataFrame({"TWEET_ID":[],"TWEET_TEXT":[],"HASHTAGS":[],"USER_NAME":[],
@@ -38,9 +31,12 @@ def gen_data():
 		              "RETWEET_COUNT":[],"USER_LOCATION":[],"DATE":[],
 		              "URL_IN_TWEET":[],"USER_MENTIONS":[],"CATEGORY":[]})
 
+	#DIFFERENT CATEGORIES TO EXTRACT TWEETS 
 	category_lis  = ['food','fashion','media','technologies','blog','travel','education','entertainment','photography']
 
 	for category in category_lis:
+		
+		#URL FOR EXTRACTING TWEETS
 		url ='https://api.twitter.com/1.1/search/tweets.json?q=%23'
 		st = '%s'%category
 		ht = '&lang=en&result_type=mixed&count=100'
@@ -84,7 +80,7 @@ def gen_data():
 	data.drop_duplicates(subset=['TWEET_TEXT'], inplace=True)
 	data.dropna(subset=['TWEET_TEXT'], inplace=True)
 
-	#preprocessing
+	#PREPROCESSING OF THE DATA
 	wnl = WordNetLemmatizer()
 
 	stop_words = set(stopwords.words('english'))
@@ -141,7 +137,8 @@ def gen_data():
 		lemmatized_tokens.append(pems)
 
 	data["TOKENS"] = lemmatized_tokens
-
+	
+	#STORE TWEETS AFTER CLEANING
 	data['CLEAN_TWEET'] = tweet_list
 
 	
@@ -375,13 +372,6 @@ def gen_data():
 
 
 	print(output_data)
-
-	#end of the analysis of the tweets
-	sql_for = "insert into twitter_gen_analysis (date,time,analysis) values (%s, %s, %s)"
-
-	user = (datetime.now().strftime("%d-%h-%Y"), datetime.now().strftime("%H:%M:%S"), json.dumps(output_data))
-	mycursor.execute(sql_for, user)
-	mydb.commit()
 
 	return output_data
 
