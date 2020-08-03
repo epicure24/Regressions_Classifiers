@@ -19,15 +19,14 @@ import json
 
 
 analyzer = SentimentIntensityAnalyzer()
-key = Twitter_key.yt_key_shweta
-#key = Twitter_key.yt_key
 
+#youtube developer key
+key = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
+#function to extract comments from the given videoid
 def extract_comments(videoId):
 	commentExtractor = CommentExtractor()
 	data = commentExtractor.get_video_comments(videoId)
-	data.to_csv('sejal.csv')
-
 	return data
  
 
@@ -84,12 +83,13 @@ def sentiment_analysis(comments_list):
 	return sentiment
 
 
+#function that generates the various analysis on the youtube comments
 def youtube_user_video(channelId):
 	result = {}
-	latest_video_id =True # get_video_id(channelId)
+	latest_video_id = get_video_id(channelId)
 	if latest_video_id != False:
-		data = extract_comments('nkcKdfL7G3A')#latest_video_id) 
-		stats = video_statistics('nkcKdfL7G3A')#latest_video_id)	
+		data = extract_comments(latest_video_id) 
+		stats = video_statistics(latest_video_id)	
 
 		suggestions, questions, personal, comments_list, raw_list = main_function(data, "youtube") 
 	
@@ -97,15 +97,14 @@ def youtube_user_video(channelId):
 		result['questions']= questions
 		result['suggestions']={'creator':personal, 'content': suggestions}
 		result['sentiment_analysis'] = sentiment_analysis(comments_list)
-		result['aspect_analysis'] = name_entity_analysis(raw_list)
+		result['name_entity_analysis'] = name_entity_analysis(raw_list)
 		result['stats'] = stats
-		print(result)
 		return result
 
 	else:
 		return False, False
 
-
+#get the stats of any video
 def video_statistics(videoId):
 	source = 'https://www.googleapis.com/youtube/v3/videos?part=statistics&id={}&key={}'.format(videoId, key)
 	response = urlopen(source)
@@ -118,7 +117,7 @@ def video_statistics(videoId):
 
 	return result 
 
-
+#get the latest videoid from youtube channel
 def get_video_id(channelId):
 	url ='https://www.googleapis.com/youtube/v3/search?key={}&channelId={}&part=snippet,id&order=date&maxResults=1'.format(key, channelId)
 	resp = urlopen(url)
