@@ -2,14 +2,8 @@ import requests
 import json
 import Twitter_key
 
-#database
-import mysql.connector as ms
-import time
-from datetime import datetime
 
-mydb = ms.connect(host="localhost", user ="root",passwd="shwetakrishnamohan", database="user_login")
-mycursor = mydb.cursor(buffered=True)
-
+#TWITTER DEVELOPER ACCOUNT GIVES BEARER TOKEN REQUIRED FOR THE AUTHENTICATION
 access_token =Twitter_key.bearer_token
 search_headers = {
     'Authorization': 'Bearer {}'.format(access_token)    
@@ -173,12 +167,6 @@ def trends():
 
 	for key in count_id:
 		atlas['global'][key] = get_trending_hashtags(count_id[key])
-
-	'''sql_for = "insert into trends (date,time,trending_list) values (%s, %s, %s)"
-
-	user = (datetime.now().strftime("%d-%h-%Y"), datetime.now().strftime("%H:%M:%S"), json.dumps(out))
-	mycursor.execute(sql_for, user)
-	mydb.commit()'''
 
 	print(atlas)
 	return atlas
