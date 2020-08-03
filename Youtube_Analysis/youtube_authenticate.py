@@ -4,7 +4,6 @@ import http.client
 import google.oauth2.credentials
 import google_auth_oauthlib.flow
 import googleapiclient.discovery
-import Twitter_key
 import random
 from datetime import datetime
 from urllib.request import urlopen
@@ -15,12 +14,14 @@ from oauth2client.tools import argparser, run_flow
 from googleapiclient.http import MediaFileUpload
 from oauth2client.client import flow_from_clientsecrets
 from flask import Flask, request, redirect, session, url_for, render_template, jsonify
-from database_operations import save_google_details, save_youtube_details, get_spear_id, get_login_details, save_login_details, check_youtube_details, get_google_details, check_google_with_spear_and_email, update_youtube_details, get_credentials
 
 
-yt_key = Twitter_key.yt_key_shweta
+#youtube developer key
+yt_key = xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
-CLIENT_SECRETS_FILE = "client_secret_shweta.json"
+#import the json file in your developer account
+CLIENT_SECRETS_FILE = "client_secret.json" 
+#various permissions to ask from the user
 SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl', "https://www.googleapis.com/auth/userinfo.email","https://www.googleapis.com/auth/youtube.readonly", "https://www.googleapis.com/auth/userinfo.profile", " https://www.googleapis.com/auth/youtube.upload", "openid"]
 API_SERVICE_NAME = 'youtube'
 API_VERSION = 'v3'
@@ -50,13 +51,14 @@ def build_youtube(credentials):
 	return youtube
 
 
+#get the statistics of any youtube channel given channel id
 def youtube_info(channel_id, yt_key):
 	source = 'https://www.googleapis.com/youtube/v3/channels?part=snippet,statistics&id={}&key={}'.format(channel_id, yt_key)
 	response = urlopen(source)
 	s = json.loads(response.read())
 	return s
 
-
+#function to redirect to the youtube authentication page
 def add_youtube():
 	flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
 	CLIENT_SECRETS_FILE, scopes=SCOPES)  
@@ -66,7 +68,7 @@ def add_youtube():
 	include_granted_scopes='true')
 	return authorization_url, state
 
-
+#callback function that authenticates and grants permission for the various scopes
 def youtube_callback(state):
 	flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
 	CLIENT_SECRETS_FILE, scopes=SCOPES, state=state)
@@ -90,7 +92,8 @@ def youtube_callback(state):
 	return cred
 
 
-def extract_all_info(credentials, email=None):
+#get the youtube stats
+def extract_all_info(credentials):
 	refresh_token = credentials['refresh_token']
 	token = credentials['token']
 	scopes = credentials["scopes"]
@@ -98,96 +101,19 @@ def extract_all_info(credentials, email=None):
 	#extract google id
 	resp = urlopen("https://www.googleapis.com/oauth2/v1/userinfo?alt=json&access_token={}".format(token))
 	info = json.loads(resp.read())
-
-	if email == None:
-		print("hello 1")
-		#google signin or sign up
-		g = get_login_details(info["email"])
-
-		if g == "exists":
-			print("hello 2")
-			#google signin
-			spear_id = get_spear_id(info["email"])
-			return info["email"], spear_id
-		else:
-			print("hello 3")
-			#google signup
-			sql ='select * from spear_userlogin_table'
-			mycursor.execute(sql)
-			count = 0
-			db_resp = mycursor.fetchall()
-			for row in db_resp:
-				count = count + 1
-			spear_id = datetime.now().strftime("%Y%m") + str(random.random()*1000000)[:6] + 'ss'+ str(count)
-
-			youtube = build_youtube(credentials)
-			channel = youtube.channels().list(mine=True, part='snippet').execute()
-
-			s = youtube_info(channel['items'][0]['id'], yt_key)
-			
-			sub = s['items'][0]['statistics']['subscriberCount']
-			view = s['items'][0]['statistics']['viewCount']
-			video = s['items'][0]['statistics']['videoCount']
-			save_google_details(info, refresh_token, scopes, spear_id)
-			save_youtube_details(info, channel, sub, view, video, spear_id)
-			return info["email"], spear_id			
 	
-	else:
-		print("hello 4")
-		#connecting youtube
-		if email == info["email"]:
-			print("hello 5")
-			h = get_google_details(info["email"])
-			
-			if h == "exists":
-				print("hello 6")
-			#already details exist update them
-				channel_id = check_youtube_details(info["email"])
-				s = youtube_info(channel_id, yt_key)
-				update_youtube_details(channel_id, s)
+	youtube = build_youtube(credentials)
+	channel = youtube.channels().list(mine=True, part='snippet').execute()
 
-			else:
-				print("hello 7") 
-				youtube = build_youtube(credentials)
-				channel = youtube.channels().list(mine=True, part='snippet').execute()
-				spear_id = get_spear_id(info["email"])
+	s = youtube_info(channel['items'][0]['id'], yt_key)
 
-				s = youtube_info(channel['items'][0]['id'], yt_key)
-				
-				sub = s['items'][0]['statistics']['subscriberCount']
-				view = s['items'][0]['statistics']['viewCount']
-				video = s['items'][0]['statistics']['videoCount']
-				save_google_details(info, refresh_token, scopes, spear_id)
-				save_youtube_details(info, channel, sub, view, video, spear_id)
-		else:
-			print("hello 8")
-			spear_id = get_spear_id(email)
-			m = check_google_with_spear_and_email(info["email"], spear_id)
+	sub = s['items'][0]['statistics']['subscriberCount']
+	view = s['items'][0]['statistics']['viewCount']
+	video = s['items'][0]['statistics']['videoCount']
+	return sub, view, video
+		
 
-			if m == "exists":
-				print("hello 9")
-				channel_id = check_youtube_details(info["email"])
-				s = youtube_info(channel_id, yt_key)
-				update_youtube_details(channel_id, s)
-
-			else:
-				print("hello 10")
-				youtube = build_youtube(credentials)
-				channel = youtube.channels().list(mine=True, part='snippet').execute()
-				spear_id = get_spear_id(email)
-
-				s = youtube_info(channel['items'][0]['id'], yt_key)
-				
-				sub = s['items'][0]['statistics']['subscriberCount']
-				view = s['items'][0]['statistics']['viewCount']
-				video = s['items'][0]['statistics']['videoCount']
-				save_google_details(info, refresh_token, scopes, spear_id)
-				save_youtube_details(info, channel, sub, view, video, spear_id)
-		return "done", "done"
-				
-
-
-
+#function to upload video on user channel
 def youtube_upload(resp, channel_id, video):
 	credentials = get_credentials(channel_id)
 	youtube = build_youtube(credentials)
@@ -229,9 +155,3 @@ def youtube_upload(resp, channel_id, video):
 				raise
 		except (RETRIABLE_EXCEPTIONS, e):
 			error = "A retriable error occurred: %s" % e
-
-
-
-
-
-
