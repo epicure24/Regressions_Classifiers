@@ -317,7 +317,7 @@ def gen_data():
 	output_data['timewise_tweets'] = tab
 
 	category_lis  = ['food','fashion','media','technologies','blog','travel','education','entertainment','photography']
-#stop_words = set(stopwords.words('english'))
+
 
 	unwanted_words = {'cant','dont','fuck','view','add','know','use','blah','bla','available','appear','actually','arrive','come',
                   'cut','days','day','check','didnt','like','lot','need','new','place','watch','work',
