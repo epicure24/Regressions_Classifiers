@@ -7,8 +7,8 @@ from nltk import pos_tag, word_tokenize
 from textblob import TextBlob
 from collections import Counter
 
+#COUNTRY CODES TO EXTRACT DATA FROM
 country_codes ={'US':'USA', 'IN':'India', 'BR':'Brazil', 'GB':'UK', 'TH':'Thailand', 'RU':'Russia', 'KR':'South Korea','ES':'Spain','JP':'Japan','CA':'Canada','AU':'Australia'}
-#country_codes={'US':'USA', 'IN':'India','BR':'Brazil', 'GB':'UK'}
 
 
 snippet_features = ["title",
@@ -25,9 +25,8 @@ header = ["video_id"] + snippet_features + ["trending_date", "tags", "view_count
                                                 "ratings_disabled", "description", "duration"] + ["country_code"]
 
 def setup():
-    yt_api_key = 'AIzaSyC5CsVkXU7Ch7ApqlyVyms5dkNNvDuSHnw' 
+    yt_api_key = xxxxxxxxxxxxxxxxxxxxxxxxxxxx
 
-    #'AIzaSyAU7udU_6olfeXV5WOcuOi68VouR9PW2NU'
     yt_country_codes = country_codes
     return yt_api_key, yt_country_codes
 
