@@ -83,20 +83,3 @@ def gen_phrases_function(lis):
 
 	sent_list = most_common(lis, phrase_list)
 	return phrase_list, sorted(sent_list, key=lambda x: len(x))
-
-
-'''lis = ["hey sanam, how are you", "your voice is so melodious sanam", "superb song of sanam",
-"please sing another song sanam", "what will be your next song sanam"]
-
-p, s = gen_phrases_function(lis)
-print(p)
-print(s)
-freq = {}
-for i in p:
-	h = i.split()
-	freq[i]=[]
-	for j in s:
-		if h[0] in j or h[1] in j:
-			freq[i].append(j)
-
-print(freq)'''
