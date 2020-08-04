@@ -1,0 +1,4 @@
+logistic regression model that assumes input variables have a Gaussian probability distribution.
+Normalization scales each input variable to the range 0-1 and can be implemented using the MinMaxScaler class in scikit-learn.
+Standardization scales each input variable to have a mean of 0.0 and a standard deviation of 1.0 and can be implemented using the 
+StandardScaler class in scikit-learn.
